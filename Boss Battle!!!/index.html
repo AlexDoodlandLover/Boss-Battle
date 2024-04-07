@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<!-- Created with https://packager.turbowarp.org/ -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- We only include this to explicitly loosen the CSP of various packager environments. It does not provide any security. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:">
+  <title>Boss Battle!!!</title>
+  <style>
+    body {
+      color: #ffffff;
+      font-family: sans-serif;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+    :root, body.is-fullscreen {
+      background-color: #000000;
+    }
+    [hidden] {
+      display: none !important;
+    }
+    h1 {
+      font-weight: normal;
+    }
+    a {
+      color: inherit;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    #app, #loading, #error, #launch {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: default;
+      user-select: none;
+      -webkit-user-select: none;
+      background-color: #000000;
+    }
+    #launch {
+      background-color: rgba(0, 0, 0, 0.7);
+      cursor: pointer;
+    }
+    .green-flag {
+      width: 80px;
+      height: 80px;
+      padding: 16px;
+      border-radius: 100%;
+      background: rgba(255, 255, 255, 0.75);
+      border: 3px solid hsla(0, 100%, 100%, 1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-sizing: border-box;
+    }
+    #loading {
+      
+    }
+    .progress-bar-outer {
+      border: 1px solid currentColor;
+      height: 10px;
+      width: 200px;
+      max-width: 200px;
+    }
+    .progress-bar-inner {
+      height: 100%;
+      width: 0;
+      background-color: currentColor;
+    }
+    .loading-text, noscript {
+      font-weight: normal;
+      font-size: 36px;
+      margin: 0 0 16px;
+    }
+    .loading-image {
+      margin: 0 0 16px;
+    }
+    #error-message, #error-stack {
+      font-family: monospace;
+      max-width: 600px;
+      white-space: pre-wrap;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    #error-stack {
+      text-align: left;
+      max-height: 200px;
+      overflow: auto;
+    }
+    .control-button {
+      width: 2rem;
+      height: 2rem;
+      padding: 0.375rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: pointer;
+      border: 0;
+      border-radius: 4px;
+    }
+    .control-button:hover {
+      background: #ff4c4c26;
+    }
+    .control-button.active {
+      background: #ff4c4c59;
+    }
+    .fullscreen-button {
+      background: white !important;
+    }
+    .standalone-fullscreen-button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 0 0 0 4px;
+      padding: 4px;
+      cursor: pointer;
+    }
+    .sc-canvas {
+      cursor: auto;
+    }
+    .sc-monitor-root[data-opcode^="data_"] .sc-monitor-value-color {
+      background-color: #ff8c1a;
+    }
+    .sc-monitor-row-value-outer {
+      background-color: #fc662c;
+    }
+    .sc-monitor-row-value-editing .sc-monitor-row-value-outer {
+      background-color: #e25b27;
+    }
+    
+  </style>
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" href="data:image/gif;base64,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">
+</head>
+<body>
+  <div id="app"></div>
+
+  <div id="launch" class="screen" hidden title="Click to start">
+    <div class="green-flag">
+      <svg viewBox="0 0 16.63 17.5" width="42" height="44">
+        <defs><style>.cls-1,.cls-2{fill:#4cbf56;stroke:#45993d;stroke-linecap:round;stroke-linejoin:round;}.cls-2{stroke-width:1.5px;}</style></defs>
+        <path class="cls-1" d="M.75,2A6.44,6.44,0,0,1,8.44,2h0a6.44,6.44,0,0,0,7.69,0V12.4a6.44,6.44,0,0,1-7.69,0h0a6.44,6.44,0,0,0-7.69,0"/>
+        <line class="cls-2" x1="0.75" y1="16.75" x2="0.75" y2="0.75"/>
+      </svg>
+    </div>
+  </div>
+
+  <div id="loading" class="screen">
+    <noscript>Enable JavaScript</noscript>
+    
+    
+    
+  </div>
+
+  <div id="error" class="screen" hidden>
+    <h1>Error</h1>
+    <details>
+      <summary id="error-message"></summary>
+      <p id="error-stack"></p>
+    </details>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    const appElement = document.getElementById('app');
+    const launchScreen = document.getElementById('launch');
+    const loadingScreen = document.getElementById('loading');
+    const loadingInner = document.getElementById('loading-inner');
+    const errorScreen = document.getElementById('error');
+    const errorScreenMessage = document.getElementById('error-message');
+    const errorScreenStack = document.getElementById('error-stack');
+
+    const handleError = (error) => {
+      console.error(error);
+      if (!errorScreen.hidden) return;
+      errorScreen.hidden = false;
+      errorScreenMessage.textContent = '' + error;
+      let debug = error && error.stack || 'no stack';
+      debug += '\nUser agent: ' + navigator.userAgent;
+      errorScreenStack.textContent = debug;
+    };
+    const setProgress = (progress) => {
+      if (loadingInner) loadingInner.style.width = progress * 100 + '%';
+    };
+    const interpolate = (a, b, t) => a + t * (b - a);
+
+    try {
+      setProgress(0.1);
+
+      const scaffolding = new Scaffolding.Scaffolding();
+      scaffolding.width = 480;
+      scaffolding.height = 360;
+      scaffolding.resizeMode = "preserve-ratio";
+      scaffolding.editableLists = false;
+      scaffolding.usePackagedRuntime = true;
+      scaffolding.setup();
+      scaffolding.appendTo(appElement);
+
+      const vm = scaffolding.vm;
+      window.scaffolding = scaffolding;
+      window.vm = scaffolding.vm;
+      window.Scratch = {
+        vm,
+        renderer: vm.renderer,
+        audioEngine: vm.runtime.audioEngine,
+        bitmapAdapter: vm.runtime.v2BitmapAdapter,
+        videoProvider: vm.runtime.ioDevices.video.provider
+      };
+
+      scaffolding.setUsername("player####".replace(/#/g, () => Math.floor(Math.random() * 10)));
+      scaffolding.setAccentColor("#ff4c4c");
+
+      try {
+        scaffolding.addCloudProvider(new Scaffolding.Cloud.WebSocketProvider(["wss://clouddata.turbowarp.org","wss://clouddata.turbowarp.xyz"], "p4-@Boss Battle!!!.sb3"));
+      } catch (error) {
+        console.error(error);
+      }
+
+      vm.setTurboMode(false);
+      if (vm.setInterpolation) vm.setInterpolation(false);
+      if (vm.setFramerate) vm.setFramerate(60);
+      if (vm.renderer.setUseHighQualityRender) vm.renderer.setUseHighQualityRender(false);
+      if (vm.setRuntimeOptions) vm.setRuntimeOptions({
+        fencing: true,
+        miscLimits: true,
+        maxClones: 300,
+      });
+      if (vm.setCompilerOptions) vm.setCompilerOptions({
+        enabled: true,
+        warpTimer: false
+      });
+      if (vm.renderer.setMaxTextureDimension) vm.renderer.setMaxTextureDimension(2048);
+
+      if (typeof ScaffoldingAddons !== 'undefined') {
+        ScaffoldingAddons.run(scaffolding, {"gamepad":false,"pointerlock":false,"specialCloudBehaviors":false,"unsafeCloudBehaviors":false,"pause":false});
+      }
+
+      scaffolding.setExtensionSecurityManager({
+        getSandboxMode: () => 'unsandboxed',
+        canLoadExtensionFromProject: () => true
+      });
+      for (const extension of []) {
+        vm.extensionManager.loadExtensionURL(extension);
+      }
+
+    } catch (e) {
+      handleError(e);
+    }
+  </script>
+  
+  
+    <script>
+      const getProjectData = (function() {
+        const storage = scaffolding.storage;
+        storage.onprogress = (total, loaded) => {
+          setProgress(interpolate(0.2, 0.98, loaded / total));
+        };
+        
+        storage.addWebStore(
+          [
+            storage.AssetType.ImageVector,
+            storage.AssetType.ImageBitmap,
+            storage.AssetType.Sound,
+            storage.AssetType.Font
+          ].filter(i => i),
+          (asset) => new URL('./assets/' + asset.assetId + '.' + asset.dataFormat, location).href
+        );
+        return () => new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = () => {
+          resolve(xhr.response);
+        };
+        xhr.onerror = () => {
+          if (location.protocol === 'file:') {
+            reject(new Error('Zip environment must be used from a website, not from a file URL.'));
+          } else {
+            reject(new Error('Request to load project data failed.'));
+          }
+        };
+        xhr.onprogress = (e) => {
+          if (e.lengthComputable) {
+            setProgress(interpolate(0.1, 0.2, e.loaded / e.total));
+          }
+        };
+        xhr.responseType = 'arraybuffer';
+        xhr.open('GET', "./assets/project.json");
+        xhr.send();
+      });
+      })();
+    </script>
+  <script>
+    const run = async () => {
+      const projectData = await getProjectData();
+      await scaffolding.loadProject(projectData);
+      setProgress(1);
+      loadingScreen.hidden = true;
+      if (false) {
+        scaffolding.start();
+      } else {
+        launchScreen.hidden = false;
+        launchScreen.addEventListener('click', () => {
+          launchScreen.hidden = true;
+          scaffolding.start();
+        });
+        launchScreen.focus();
+      }
+    };
+    run().catch(handleError);
+  </script>
+</body>
+</html>
